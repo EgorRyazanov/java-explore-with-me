@@ -32,8 +32,6 @@ services:
       retries: 10
 
   ewm-service:
-    # shortcut: основной сервис пока без точки входа, убрать профиль после реализации на этапе 2.
-    profiles: ["main"]
     build: ./ewm-main-service
     ports:
       - "8080:8080"
@@ -47,9 +45,14 @@ services:
         condition: service_healthy
       stats-server:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 15s
 
   ewm-db:
-    profiles: ["main"]
     image: postgres:16.1
     environment:
       POSTGRES_DB: ewm
